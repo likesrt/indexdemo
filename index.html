@@ -1,236 +1,230 @@
 <!DOCTYPE html>
 <html lang="zh-CN">
+
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Welcome here!</title>
-  <link rel="preconnect" href="https://v1.hitokoto.cn" crossorigin>
-  <script>
-    (function () {
-      try {
-        var mem = navigator.deviceMemory || 0;
-        var cores = navigator.hardwareConcurrency || 0;
-        if ((mem && mem <= 4) || (cores && cores <= 4)) {
-          document.documentElement.classList.add('lowperf');
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Welcome here!</title>
+    <link rel="preconnect" href="https://v1.hitokoto.cn" crossorigin>
+    <script>
+        (() => {
+            try {
+                const mem = navigator.deviceMemory || 0;
+                const cores = navigator.hardwareConcurrency || 0;
+                if ((mem && mem <= 4) || (cores && cores <= 4)) {
+                    document.documentElement.classList.add('lowperf');
+                }
+            } catch { }
+        })();
+    </script>
+    <style>
+        :root {
+            --bg: #fbfcfd;
+            --ink: #475569;
+            /* --mint: #d8f5df;
+                --apricot: #fff3cd;
+                --lavender: #ece8ff; */
+            --mint: #8ff5a2;
+            /* 更亮的绿色 */
+            --apricot: #ffd580;
+            /* 更深的杏色 */
+            --lavender: #d0b8ff;
+            /* 更饱和的紫色 */
+
+            --drift-duration: 22s;
+            --blob-size: 52vmax;
+            --blob-blur: 48px;
+            --blob-opacity: 0.4;
+            --blob-opacity-low: 0.18;
         }
-      } catch (_) {}
-    })();
-  </script>
-  <style>
-    :root {
-      --bg: #fbfcfd;
-      --ink: #475569;
-      --muted: #94a3b8;
-      --mint: #d8f5df;
-      --apricot: #fff3cd;
-      --lavender: #ece8ff;
-      /* animation and visuals */
-      --drift-duration: 22s;
-      --blob-blur: 48px;
-      --blob-blur-mobile: 36px;
-      --blob-opacity: .26;
-      --blob-opacity-low: .18;
-      --blob-size: 52vmax;
-      --blob-size-mobile: 46vmax;
-    }
 
-    * { box-sizing: border-box; }
-    html, body { height: 100%; }
+        * {
+            box-sizing: border-box;
+        }
 
-    body {
-      margin: 0;
-      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Noto Sans CJK SC", "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", sans-serif;
-      background: var(--bg);
-      color: var(--ink);
-      display: grid;
-      place-items: center;
-      line-height: 1.6;
-    }
+        html,
+        body {
+            height: 100%;
+            margin: 0;
+        }
 
-    .bg {
-      position: fixed;
-      inset: 0;
-      pointer-events: none;
-      z-index: 0;
-      overflow: hidden;
-    }
-    .bg span {
-      position: absolute;
-      width: 52vmax;
-      height: 52vmax;
-      border-radius: 50%;
-      filter: blur(var(--blob-blur)) saturate(105%);
-      opacity: var(--blob-opacity);
-      transform: translateZ(0) scale(.98);
-      animation: drift var(--drift-duration) ease-in-out infinite;
-      will-change: transform;
-    }
-    .bg span:nth-child(1) { left: -18vmax; top: -12vmax; background: var(--mint); }
-    .bg span:nth-child(2) { right: -20vmax; bottom: -10vmax; background: var(--apricot); animation-delay: 2.5s; }
-    .bg span:nth-child(3) { right: -5vmax; top: -8vmax; background: var(--lavender); animation-delay: 5s; }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Noto Sans CJK SC", "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", sans-serif;
+            background: var(--bg);
+            color: var(--ink);
+            display: grid;
+            place-items: center;
+            line-height: 1.6;
+        }
 
-    @keyframes drift {
-      0%, 100% { transform: translate3d(0,0,0) scale(.98); }
-      50% { transform: translate3d(1.2vmax, -.6vmax, 0) scale(1); }
-    }
+        /* 背景渐变动画 */
+        .bg {
+            position: fixed;
+            inset: 0;
+            pointer-events: none;
+            z-index: 0;
+        }
 
-    /* Replace heavy blur spans with gradient-based background */
-    .bg::before {
-      content: "";
-      position: absolute;
-      inset: 0;
-      background:
-        radial-gradient(var(--blob-size) var(--blob-size) at 15% 20%, var(--mint) 0%, transparent 55%),
-        radial-gradient(var(--blob-size) var(--blob-size) at 85% 80%, var(--apricot) 0%, transparent 55%),
-        radial-gradient(calc(var(--blob-size) - 6vmax) calc(var(--blob-size) - 6vmax) at 80% 15%, var(--lavender) 0%, transparent 55%);
-      background-repeat: no-repeat;
-      transform: translateZ(0) scale(.98);
-      animation: driftBg var(--drift-duration) ease-in-out infinite;
-      opacity: var(--blob-opacity);
-      will-change: transform, background-position;
-    }
+        .bg::before {
+            content: "";
+            position: absolute;
+            inset: 0;
+            background:
+                radial-gradient(var(--blob-size) var(--blob-size) at 15% 20%, var(--mint) 0%, transparent 55%),
+                radial-gradient(var(--blob-size) var(--blob-size) at 85% 80%, var(--apricot) 0%, transparent 55%),
+                radial-gradient(calc(var(--blob-size) - 6vmax) calc(var(--blob-size) - 6vmax) at 80% 15%, var(--lavender) 0%, transparent 55%),
+                rgba(255, 255, 255, 0.05);
+            /* 这里是叠加层 */
+            background-repeat: no-repeat;
+            animation: driftBg var(--drift-duration) ease-in-out infinite;
+            opacity: var(--blob-opacity);
+            will-change: background-position;
+        }
 
-    /* Hide original span blobs */
-    .bg span { display: none !important; }
+        @keyframes driftBg {
 
-    @keyframes driftBg {
-      0%, 100% { background-position: 0px 0px, 0px 0px, 0px 0px; }
-      50% { background-position: 1.2vmax -0.6vmax, -1vmax 0.8vmax, 0.8vmax -0.5vmax; }
-    }
+            0%,
+            100% {
+                background-position: 0px 0px, 0px 0px, 0px 0px;
+            }
 
-    .center {
-      position: fixed;
-      inset: 0;
-      display: grid;
-      place-items: center;
-      z-index: 1;
-      text-align: center;
-    }
+            50% {
+                background-position: 1.2vmax -0.6vmax, -1vmax 0.8vmax, 0.8vmax -0.5vmax;
+            }
+        }
 
-    .title {
-      font-size: 24px;
-      font-weight: bold;
-      margin-bottom: 10px;
-    }
+        .center {
+            position: fixed;
+            inset: 0;
+            display: grid;
+            place-items: center;
+            z-index: 1;
+            text-align: center;
+        }
 
-    .hitokoto {
-      position: fixed;
-      inset: auto 0 28px 0;
-      width: min(92%, 720px);
-      margin: 0 auto;
-      color: var(--ink);
-      text-align: center;
-      font-size: 14px;
-      line-height: 1.7;
-      padding: 10px 14px;
-      border-radius: 12px;
-      background: rgba(255,255,255,.45);
-      border: 1px solid rgba(148,163,184,.22);
-      backdrop-filter: blur(5px) saturate(108%);
-      -webkit-backdrop-filter: blur(5px) saturate(108%);
-      opacity: 0;
-      transform: translateY(6px);
-      transition: opacity .5s ease, transform .5s ease, box-shadow .25s ease;
-      box-shadow: 0 4px 16px rgba(15,23,42,.05);
-      will-change: opacity, transform;
-    }
+        .title {
+            font-size: 24px;
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
 
-    .hitokoto.show {
-      opacity: .92;
-      transform: translateY(0);
-    }
+        .hitokoto {
+            position: fixed;
+            inset: auto 0 28px 0;
+            width: min(92%, 720px);
+            margin: 0 auto;
+            color: var(--ink);
+            text-align: center;
+            font-size: 14px;
+            line-height: 1.7;
+            padding: 10px 14px;
+            border-radius: 12px;
+            background: rgba(255, 255, 255, .45);
+            border: 1px solid rgba(148, 163, 184, .22);
+            backdrop-filter: blur(5px) saturate(108%);
+            -webkit-backdrop-filter: blur(5px) saturate(108%);
+            visibility: hidden;
+            opacity: 0;
+            transform: translateY(6px);
+            transition: opacity .5s ease, transform .5s ease, box-shadow .25s ease, visibility 0s linear .5s;
+            box-shadow: 0 4px 16px rgba(15, 23, 42, .05);
+        }
 
+        .hitokoto.show {
+            visibility: visible;
+            opacity: .92;
+            transform: translateY(0);
+            transition-delay: 0s;
+        }
 
-    @media (prefers-reduced-motion: reduce) {
-      .bg span { animation: none !important; }
-      .hitokoto { transition: none !important; }
-    }
+        /* 降低动画/性能要求 */
+        @media (prefers-reduced-motion: reduce) {
+            .bg::before {
+                animation: none !important;
+            }
 
-    html.lowperf .bg span {
-      /* In low performance mode, avoid heavy filters */
-      filter: none !important;
-      opacity: var(--blob-opacity-low) !important;
-      animation: none !important;
-    }
-    html.lowperf .bg::before {
-      animation: none !important;
-      opacity: var(--blob-opacity-low) !important;
-    }
+            .hitokoto {
+                transition: none !important;
+            }
+        }
 
-    html.lowperf .hitokoto {
-      backdrop-filter: none !important;
-      -webkit-backdrop-filter: none !important;
-      background: rgba(255,255,255,.82) !important;
-    }
+        html.lowperf .bg::before {
+            animation: none !important;
+            opacity: var(--blob-opacity-low) !important;
+            background: radial-gradient(circle at 30% 30%, var(--mint), transparent 60%),
+                radial-gradient(circle at 70% 70%, var(--apricot), transparent 60%),
+                radial-gradient(circle at 80% 20%, var(--lavender), transparent 60%);
+            background-size: cover;
+        }
 
-    /* Pause-able background animation */
-    html.paused .bg span { animation-play-state: paused !important; }
+        html.lowperf .hitokoto {
+            backdrop-filter: none !important;
+            -webkit-backdrop-filter: none !important;
+            background: rgba(255, 255, 255, .82) !important;
+        }
 
-    /* Mobile tuning */
-    @media (max-width: 480px) {
-      :root { --blob-size: var(--blob-size-mobile); }
-      .hitokoto { font-size: 13px; inset: auto 0 22px 0; }
-    }
-  </style>
+        /* 移动端尺寸调整 */
+        @media (max-width: 480px) {
+            :root {
+                --blob-size: 46vmax;
+                --blob-blur: 36px;
+            }
+
+            .hitokoto {
+                font-size: 13px;
+                inset: auto 0 22px 0;
+            }
+        }
+    </style>
 </head>
+
 <body>
-  <div class="bg" aria-hidden="true">
-    <span></span>
-    <span></span>
-    <span></span>
-  </div>
+    <div class="bg" aria-hidden="true"></div>
+    <div class="center">
+        <div class="title">Welcome here!</div>
+    </div>
+    <div class="hitokoto" id="hitokoto"></div>
 
-  <div class="center">
-    <div class="title">Welcome here!</div>
-  </div>
+    <script>
+        (() => {
+            const API_URL = 'https://v1.hitokoto.cn/?c=i&c=d&c=k';
+            const FETCH_TIMEOUT = 2500;
+            const root = document.documentElement;
+            const elHitokoto = document.getElementById('hitokoto');
 
-  <div class="hitokoto" id="hitokoto"></div>
+            // 更新暂停状态
+            const updatePaused = () => {
+                root.classList.toggle('paused', document.hidden || !document.hasFocus());
+            };
+            ['visibilitychange', 'focus', 'blur'].forEach(evt =>
+                addEventListener(evt, updatePaused)
+            );
+            updatePaused();
 
-  <script>
-    (function () {
-      // constants
-      const API_URL = 'https://v1.hitokoto.cn/?c=i&c=d&c=k';
-      const root = document.documentElement;
-      const elHitokoto = document.getElementById('hitokoto');
+            // fetch 带超时
+            const fetchWithTimeout = (url, opts = {}) => {
+                const controller = new AbortController();
+                const timer = setTimeout(() => controller.abort(), FETCH_TIMEOUT);
+                return fetch(url, { signal: controller.signal, cache: 'no-store', ...opts })
+                    .finally(() => clearTimeout(timer));
+            };
 
-      // combine event listeners to reduce duplication
-      function updatePaused() {
-        const paused = document.hidden || document.visibilityState !== 'visible' || !document.hasFocus();
-        root.classList.toggle('paused', !!paused);
-      }
-      [ [document, 'visibilitychange'], [window, 'focus'], [window, 'blur'] ]
-        .forEach(([t,e]) => t.addEventListener(e, updatePaused));
-      updatePaused();
+            // 加载一言
+            const loadHitokoto = async () => {
+                try {
+                    const resp = await fetchWithTimeout(API_URL);
+                    if (!resp.ok) throw new Error('network');
+                    const { hitokoto = '', from = '' } = await resp.json();
+                    elHitokoto.textContent = `${hitokoto}${from ? ` — ${from}` : ''}`;
+                    requestAnimationFrame(() => elHitokoto.classList.add('show'));
+                } catch (err) {
+                    console.error(err);
+                }
+            };
 
-      // generic fetch with timeout
-      async function fetchWithTimeout(url, { timeout = 2500, ...opts } = {}) {
-        const controller = new AbortController();
-        const id = setTimeout(() => controller.abort(), timeout);
-        try {
-          const resp = await fetch(url, { signal: controller.signal, ...opts });
-          return resp;
-        } finally {
-          clearTimeout(id);
-        }
-      }
-
-      // no-cache loader
-      async function loadHitokotoNoCache() {
-        try {
-          const resp = await fetchWithTimeout(API_URL, { cache: 'no-store', timeout: 2500 });
-          if (!resp.ok) throw new Error('network');
-          const data = await resp.json();
-          const text = (data && data.hitokoto) ? data.hitokoto : '';
-          const from = (data && data.from) ? ` — ${data.from}` : '';
-          elHitokoto.textContent = text + from;
-          requestAnimationFrame(() => elHitokoto.classList.add('show'));
-        } catch (e) {
-          console.error(e);
-        }
-      }
-
-      window.addEventListener('DOMContentLoaded', loadHitokotoNoCache);
-    })();
-  </script>
+            addEventListener('DOMContentLoaded', loadHitokoto);
+        })();
+    </script>
 </body>
+
 </html>
