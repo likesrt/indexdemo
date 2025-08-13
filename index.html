@@ -30,6 +30,8 @@
       --blob-blur-mobile: 36px;
       --blob-opacity: .26;
       --blob-opacity-low: .18;
+      --blob-size: 52vmax;
+      --blob-size-mobile: 46vmax;
     }
 
     * { box-sizing: border-box; }
@@ -70,6 +72,30 @@
     @keyframes drift {
       0%, 100% { transform: translate3d(0,0,0) scale(.98); }
       50% { transform: translate3d(1.2vmax, -.6vmax, 0) scale(1); }
+    }
+
+    /* Replace heavy blur spans with gradient-based background */
+    .bg::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background:
+        radial-gradient(var(--blob-size) var(--blob-size) at 15% 20%, var(--mint) 0%, transparent 55%),
+        radial-gradient(var(--blob-size) var(--blob-size) at 85% 80%, var(--apricot) 0%, transparent 55%),
+        radial-gradient(calc(var(--blob-size) - 6vmax) calc(var(--blob-size) - 6vmax) at 80% 15%, var(--lavender) 0%, transparent 55%);
+      background-repeat: no-repeat;
+      transform: translateZ(0) scale(.98);
+      animation: driftBg var(--drift-duration) ease-in-out infinite;
+      opacity: var(--blob-opacity);
+      will-change: transform, background-position;
+    }
+
+    /* Hide original span blobs */
+    .bg span { display: none !important; }
+
+    @keyframes driftBg {
+      0%, 100% { background-position: 0px 0px, 0px 0px, 0px 0px; }
+      50% { background-position: 1.2vmax -0.6vmax, -1vmax 0.8vmax, 0.8vmax -0.5vmax; }
     }
 
     .center {
@@ -126,6 +152,10 @@
       opacity: var(--blob-opacity-low) !important;
       animation: none !important;
     }
+    html.lowperf .bg::before {
+      animation: none !important;
+      opacity: var(--blob-opacity-low) !important;
+    }
 
     html.lowperf .hitokoto {
       backdrop-filter: none !important;
@@ -136,13 +166,9 @@
     /* Pause-able background animation */
     html.paused .bg span { animation-play-state: paused !important; }
 
-    /* Mobile tuning: slightly smaller blobs and lighter blur */
+    /* Mobile tuning */
     @media (max-width: 480px) {
-      .bg span {
-        width: 46vmax;
-        height: 46vmax;
-        filter: blur(var(--blob-blur-mobile)) saturate(104%);
-      }
+      :root { --blob-size: var(--blob-size-mobile); }
       .hitokoto { font-size: 13px; inset: auto 0 22px 0; }
     }
   </style>
