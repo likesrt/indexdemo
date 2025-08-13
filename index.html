@@ -24,6 +24,12 @@
       --mint: #d8f5df;
       --apricot: #fff3cd;
       --lavender: #ece8ff;
+      /* animation and visuals */
+      --drift-duration: 22s;
+      --blob-blur: 48px;
+      --blob-blur-mobile: 36px;
+      --blob-opacity: .26;
+      --blob-opacity-low: .18;
     }
 
     * { box-sizing: border-box; }
@@ -51,10 +57,10 @@
       width: 52vmax;
       height: 52vmax;
       border-radius: 50%;
-      filter: blur(48px) saturate(105%);
-      opacity: .26;
+      filter: blur(var(--blob-blur)) saturate(105%);
+      opacity: var(--blob-opacity);
       transform: translateZ(0) scale(.98);
-      animation: drift 22s ease-in-out infinite;
+      animation: drift var(--drift-duration) ease-in-out infinite;
       will-change: transform;
     }
     .bg span:nth-child(1) { left: -18vmax; top: -12vmax; background: var(--mint); }
@@ -108,9 +114,6 @@
       transform: translateY(0);
     }
 
-    @media (max-width: 480px) {
-      .hitokoto { font-size: 13px; inset: auto 0 22px 0; }
-    }
 
     @media (prefers-reduced-motion: reduce) {
       .bg span { animation: none !important; }
@@ -118,8 +121,9 @@
     }
 
     html.lowperf .bg span {
-      filter: blur(32px) saturate(104%) !important;
-      opacity: .18 !important;
+      /* In low performance mode, avoid heavy filters */
+      filter: none !important;
+      opacity: var(--blob-opacity-low) !important;
       animation: none !important;
     }
 
@@ -137,8 +141,9 @@
       .bg span {
         width: 46vmax;
         height: 46vmax;
-        filter: blur(36px) saturate(104%);
+        filter: blur(var(--blob-blur-mobile)) saturate(104%);
       }
+      .hitokoto { font-size: 13px; inset: auto 0 22px 0; }
     }
   </style>
 </head>
@@ -156,41 +161,50 @@
   <div class="hitokoto" id="hitokoto"></div>
 
   <script>
-    // Pause animations when tab is hidden or window loses focus
     (function () {
-      function updatePaused() {
-        var paused = document.hidden || document.visibilityState !== 'visible' || !document.hasFocus();
-        document.documentElement.classList.toggle('paused', !!paused);
-      }
-      document.addEventListener('visibilitychange', updatePaused);
-      window.addEventListener('focus', updatePaused);
-      window.addEventListener('blur', updatePaused);
-      updatePaused();
-    })();
+      // constants
+      const API_URL = 'https://v1.hitokoto.cn/?c=i&c=d&c=k';
+      const root = document.documentElement;
+      const elHitokoto = document.getElementById('hitokoto');
 
-    async function loadHitokotoNoCache() {
-      const controller = new AbortController();
-      const timer = setTimeout(() => controller.abort(), 2500);
-      try {
-        const resp = await fetch('https://v1.hitokoto.cn/?c=i&c=d&c=k', {
-          signal: controller.signal,
-          cache: 'no-store'
-        });
-        clearTimeout(timer);
-        if (!resp.ok) throw new Error('network');
-        const data = await resp.json();
-        const text = (data && data.hitokoto) ? data.hitokoto : '';
-        const from = (data && data.from) ? ` — ${data.from}` : '';
-        const full = text + from;
-        const el = document.getElementById('hitokoto');
-        el.textContent = full;
-        requestAnimationFrame(() => el.classList.add('show'));
-      } catch (e) {
-        clearTimeout(timer);
-        console.error(e);
+      // combine event listeners to reduce duplication
+      function updatePaused() {
+        const paused = document.hidden || document.visibilityState !== 'visible' || !document.hasFocus();
+        root.classList.toggle('paused', !!paused);
       }
-    }
-    window.addEventListener('DOMContentLoaded', loadHitokotoNoCache);
+      [ [document, 'visibilitychange'], [window, 'focus'], [window, 'blur'] ]
+        .forEach(([t,e]) => t.addEventListener(e, updatePaused));
+      updatePaused();
+
+      // generic fetch with timeout
+      async function fetchWithTimeout(url, { timeout = 2500, ...opts } = {}) {
+        const controller = new AbortController();
+        const id = setTimeout(() => controller.abort(), timeout);
+        try {
+          const resp = await fetch(url, { signal: controller.signal, ...opts });
+          return resp;
+        } finally {
+          clearTimeout(id);
+        }
+      }
+
+      // no-cache loader
+      async function loadHitokotoNoCache() {
+        try {
+          const resp = await fetchWithTimeout(API_URL, { cache: 'no-store', timeout: 2500 });
+          if (!resp.ok) throw new Error('network');
+          const data = await resp.json();
+          const text = (data && data.hitokoto) ? data.hitokoto : '';
+          const from = (data && data.from) ? ` — ${data.from}` : '';
+          elHitokoto.textContent = text + from;
+          requestAnimationFrame(() => elHitokoto.classList.add('show'));
+        } catch (e) {
+          console.error(e);
+        }
+      }
+
+      window.addEventListener('DOMContentLoaded', loadHitokotoNoCache);
+    })();
   </script>
 </body>
 </html>
