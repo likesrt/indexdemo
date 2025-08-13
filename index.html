@@ -3,15 +3,27 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title></title>
+  <title>Welcome here!</title>
+  <link rel="preconnect" href="https://v1.hitokoto.cn" crossorigin>
+  <script>
+    (function () {
+      try {
+        var mem = navigator.deviceMemory || 0;
+        var cores = navigator.hardwareConcurrency || 0;
+        if ((mem && mem <= 4) || (cores && cores <= 4)) {
+          document.documentElement.classList.add('lowperf');
+        }
+      } catch (_) {}
+    })();
+  </script>
   <style>
     :root {
       --bg: #fbfcfd;
-      --ink: #475569;     /* 石板蓝灰 */
-      --muted: #94a3b8;   /* 次级文字 */
-      --mint: #d8f5df;    /* 薄荷绿 */
-      --apricot: #fff3cd; /* 浅杏黄 */
-      --lavender: #ece8ff;/* 淡紫 */
+      --ink: #475569;
+      --muted: #94a3b8;
+      --mint: #d8f5df;
+      --apricot: #fff3cd;
+      --lavender: #ece8ff;
     }
 
     * { box-sizing: border-box; }
@@ -39,48 +51,36 @@
       width: 52vmax;
       height: 52vmax;
       border-radius: 50%;
-      filter: blur(70px);
-      opacity: .32;
-      transform: translateZ(0) scale(.95);
-      animation: drift 18s ease-in-out infinite;
+      filter: blur(48px) saturate(105%);
+      opacity: .26;
+      transform: translateZ(0) scale(.98);
+      animation: drift 22s ease-in-out infinite;
+      will-change: transform;
     }
     .bg span:nth-child(1) { left: -18vmax; top: -12vmax; background: var(--mint); }
     .bg span:nth-child(2) { right: -20vmax; bottom: -10vmax; background: var(--apricot); animation-delay: 2.5s; }
     .bg span:nth-child(3) { right: -5vmax; top: -8vmax; background: var(--lavender); animation-delay: 5s; }
 
     @keyframes drift {
-      0%, 100% { transform: translate3d(0,0,0) scale(.95); }
-      50% { transform: translate3d(2vmax, -1vmax, 0) scale(1); }
+      0%, 100% { transform: translate3d(0,0,0) scale(.98); }
+      50% { transform: translate3d(1.2vmax, -.6vmax, 0) scale(1); }
     }
 
     .center {
-      position: relative;
+      position: fixed;
+      inset: 0;
+      display: grid;
+      place-items: center;
       z-index: 1;
       text-align: center;
     }
-    .mark {
-      display: inline-block;
-      width: 14px;
-      height: 14px;
-      border-radius: 50%;
-      background: linear-gradient(180deg, #b0e9c0, #b3c6ff);
-      box-shadow: 0 1px 0 rgba(255,255,255,.6) inset, 0 0 0 8px rgba(71,85,105,.06);
-      transform-origin: 50% 50%;
-      animation: float 4.2s ease-in-out infinite;
-    }
-    @keyframes float { 0%,100%{ transform: translateY(0) } 50%{ transform: translateY(-6px) } }
 
-    .caption {
-      margin-top: 16px;
-      font-size: 13px;
-      color: var(--muted);
-      opacity: 0;
-      transform: translateY(4px);
-      animation: appear .9s ease .4s forwards;
+    .title {
+      font-size: 24px;
+      font-weight: bold;
+      margin-bottom: 10px;
     }
-    @keyframes appear { to { opacity: 1; transform: translateY(0) } }
 
-    /* 一言文案 */
     .hitokoto {
       position: fixed;
       inset: auto 0 28px 0;
@@ -90,21 +90,55 @@
       text-align: center;
       font-size: 14px;
       line-height: 1.7;
+      padding: 10px 14px;
+      border-radius: 12px;
+      background: rgba(255,255,255,.45);
+      border: 1px solid rgba(148,163,184,.22);
+      backdrop-filter: blur(5px) saturate(108%);
+      -webkit-backdrop-filter: blur(5px) saturate(108%);
       opacity: 0;
-      transform: translateY(8px);
-      transition: opacity .6s ease, transform .6s ease;
+      transform: translateY(6px);
+      transition: opacity .5s ease, transform .5s ease, box-shadow .25s ease;
+      box-shadow: 0 4px 16px rgba(15,23,42,.05);
+      will-change: opacity, transform;
     }
-    .hitokoto.show { opacity: .9; transform: translateY(0); }
 
-    @media (prefers-reduced-motion: reduce) {
-      .bg span { animation: none; }
-      .mark { animation: none; }
-      .hitokoto { transition: none; }
+    .hitokoto.show {
+      opacity: .92;
+      transform: translateY(0);
     }
 
     @media (max-width: 480px) {
-      .mark { width: 12px; height: 12px; box-shadow: 0 0 0 6px rgba(71,85,105,.06); }
       .hitokoto { font-size: 13px; inset: auto 0 22px 0; }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      .bg span { animation: none !important; }
+      .hitokoto { transition: none !important; }
+    }
+
+    html.lowperf .bg span {
+      filter: blur(32px) saturate(104%) !important;
+      opacity: .18 !important;
+      animation: none !important;
+    }
+
+    html.lowperf .hitokoto {
+      backdrop-filter: none !important;
+      -webkit-backdrop-filter: none !important;
+      background: rgba(255,255,255,.82) !important;
+    }
+
+    /* Pause-able background animation */
+    html.paused .bg span { animation-play-state: paused !important; }
+
+    /* Mobile tuning: slightly smaller blobs and lighter blur */
+    @media (max-width: 480px) {
+      .bg span {
+        width: 46vmax;
+        height: 46vmax;
+        filter: blur(36px) saturate(104%);
+      }
     }
   </style>
 </head>
@@ -115,24 +149,48 @@
     <span></span>
   </div>
 
+  <div class="center">
+    <div class="title">Welcome here!</div>
+  </div>
 
   <div class="hitokoto" id="hitokoto"></div>
 
   <script>
-    async function loadHitokoto() {
+    // Pause animations when tab is hidden or window loses focus
+    (function () {
+      function updatePaused() {
+        var paused = document.hidden || document.visibilityState !== 'visible' || !document.hasFocus();
+        document.documentElement.classList.toggle('paused', !!paused);
+      }
+      document.addEventListener('visibilitychange', updatePaused);
+      window.addEventListener('focus', updatePaused);
+      window.addEventListener('blur', updatePaused);
+      updatePaused();
+    })();
+
+    async function loadHitokotoNoCache() {
+      const controller = new AbortController();
+      const timer = setTimeout(() => controller.abort(), 2500);
       try {
-        const resp = await fetch('https://v1.hitokoto.cn/?c=i&c=d&c=k');
+        const resp = await fetch('https://v1.hitokoto.cn/?c=i&c=d&c=k', {
+          signal: controller.signal,
+          cache: 'no-store'
+        });
+        clearTimeout(timer);
         if (!resp.ok) throw new Error('network');
         const data = await resp.json();
         const text = (data && data.hitokoto) ? data.hitokoto : '';
-        const from = data.from ? ` — ${data.from}` : '';
+        const from = (data && data.from) ? ` — ${data.from}` : '';
+        const full = text + from;
         const el = document.getElementById('hitokoto');
-        el.textContent = text + from;
+        el.textContent = full;
         requestAnimationFrame(() => el.classList.add('show'));
       } catch (e) {
+        clearTimeout(timer);
+        console.error(e);
       }
     }
-    window.addEventListener('DOMContentLoaded', loadHitokoto);
+    window.addEventListener('DOMContentLoaded', loadHitokotoNoCache);
   </script>
 </body>
 </html>
