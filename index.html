@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title></title>
+  <style>
+    :root {
+      --bg: #fbfcfd;
+      --ink: #475569;     /* 石板蓝灰 */
+      --muted: #94a3b8;   /* 次级文字 */
+      --mint: #d8f5df;    /* 薄荷绿 */
+      --apricot: #fff3cd; /* 浅杏黄 */
+      --lavender: #ece8ff;/* 淡紫 */
+    }
+
+    * { box-sizing: border-box; }
+    html, body { height: 100%; }
+
+    body {
+      margin: 0;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Noto Sans CJK SC", "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", sans-serif;
+      background: var(--bg);
+      color: var(--ink);
+      display: grid;
+      place-items: center;
+      line-height: 1.6;
+    }
+
+    .bg {
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      z-index: 0;
+      overflow: hidden;
+    }
+    .bg span {
+      position: absolute;
+      width: 52vmax;
+      height: 52vmax;
+      border-radius: 50%;
+      filter: blur(70px);
+      opacity: .32;
+      transform: translateZ(0) scale(.95);
+      animation: drift 18s ease-in-out infinite;
+    }
+    .bg span:nth-child(1) { left: -18vmax; top: -12vmax; background: var(--mint); }
+    .bg span:nth-child(2) { right: -20vmax; bottom: -10vmax; background: var(--apricot); animation-delay: 2.5s; }
+    .bg span:nth-child(3) { right: -5vmax; top: -8vmax; background: var(--lavender); animation-delay: 5s; }
+
+    @keyframes drift {
+      0%, 100% { transform: translate3d(0,0,0) scale(.95); }
+      50% { transform: translate3d(2vmax, -1vmax, 0) scale(1); }
+    }
+
+    .center {
+      position: relative;
+      z-index: 1;
+      text-align: center;
+    }
+    .mark {
+      display: inline-block;
+      width: 14px;
+      height: 14px;
+      border-radius: 50%;
+      background: linear-gradient(180deg, #b0e9c0, #b3c6ff);
+      box-shadow: 0 1px 0 rgba(255,255,255,.6) inset, 0 0 0 8px rgba(71,85,105,.06);
+      transform-origin: 50% 50%;
+      animation: float 4.2s ease-in-out infinite;
+    }
+    @keyframes float { 0%,100%{ transform: translateY(0) } 50%{ transform: translateY(-6px) } }
+
+    .caption {
+      margin-top: 16px;
+      font-size: 13px;
+      color: var(--muted);
+      opacity: 0;
+      transform: translateY(4px);
+      animation: appear .9s ease .4s forwards;
+    }
+    @keyframes appear { to { opacity: 1; transform: translateY(0) } }
+
+    /* 一言文案 */
+    .hitokoto {
+      position: fixed;
+      inset: auto 0 28px 0;
+      width: min(92%, 720px);
+      margin: 0 auto;
+      color: var(--ink);
+      text-align: center;
+      font-size: 14px;
+      line-height: 1.7;
+      opacity: 0;
+      transform: translateY(8px);
+      transition: opacity .6s ease, transform .6s ease;
+    }
+    .hitokoto.show { opacity: .9; transform: translateY(0); }
+
+    @media (prefers-reduced-motion: reduce) {
+      .bg span { animation: none; }
+      .mark { animation: none; }
+      .hitokoto { transition: none; }
+    }
+
+    @media (max-width: 480px) {
+      .mark { width: 12px; height: 12px; box-shadow: 0 0 0 6px rgba(71,85,105,.06); }
+      .hitokoto { font-size: 13px; inset: auto 0 22px 0; }
+    }
+  </style>
+</head>
+<body>
+  <div class="bg" aria-hidden="true">
+    <span></span>
+    <span></span>
+    <span></span>
+  </div>
+
+
+  <div class="hitokoto" id="hitokoto"></div>
+
+  <script>
+    async function loadHitokoto() {
+      try {
+        const resp = await fetch('https://v1.hitokoto.cn/?c=i&c=d&c=k');
+        if (!resp.ok) throw new Error('network');
+        const data = await resp.json();
+        const text = (data && data.hitokoto) ? data.hitokoto : '';
+        const from = data.from ? ` — ${data.from}` : '';
+        const el = document.getElementById('hitokoto');
+        el.textContent = text + from;
+        requestAnimationFrame(() => el.classList.add('show'));
+      } catch (e) {
+      }
+    }
+    window.addEventListener('DOMContentLoaded', loadHitokoto);
+  </script>
+</body>
+</html>
